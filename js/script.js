@@ -10,6 +10,7 @@ const heroParticles = document.getElementById('heroParticles');
 const replayBtn = document.getElementById('replayBtn');
 const musicToggle = document.getElementById('musicToggle');
 const emojiRain = document.getElementById('emojiRain');
+const nextPageBtn = document.getElementById('nextPageBtn');
 
 // =========================================
 // ANNIVERSARY DATE & COUNTER
@@ -55,30 +56,30 @@ function animateCounter(id, target) {
 }
 
 // =========================================
-// FLOATING HEARTS
+// FLOATING BACKGROUND FLOWERS
 // =========================================
-const heartEmojis = ['💕', '💗', '💖', '💓', '❤️', '🩷', '🤍', '💜', '✨', '🌸'];
+const backgroundEmojis = ['🌸', '🌺', '🌷', '🌼', '🌻', '🌹', '💮', '💐', '✨', '💕', '💗'];
 
-function createFloatingHeart() {
-    const heart = document.createElement('div');
-    heart.className = 'floating-heart';
-    heart.textContent = heartEmojis[Math.floor(Math.random() * heartEmojis.length)];
-    heart.style.left = Math.random() * 100 + '%';
-    heart.style.fontSize = (Math.random() * 1.2 + 0.6) + 'rem';
-    heart.style.animationDuration = (Math.random() * 8 + 8) + 's';
-    heart.style.animationDelay = Math.random() * 2 + 's';
-    heartsContainer.appendChild(heart);
+function createFloatingElement() {
+    const element = document.createElement('div');
+    element.className = 'floating-heart';
+    element.textContent = backgroundEmojis[Math.floor(Math.random() * backgroundEmojis.length)];
+    element.style.left = Math.random() * 100 + '%';
+    element.style.fontSize = (Math.random() * 1.2 + 0.6) + 'rem';
+    element.style.animationDuration = (Math.random() * 8 + 8) + 's';
+    element.style.animationDelay = Math.random() * 2 + 's';
+    heartsContainer.appendChild(element);
 
-    setTimeout(() => heart.remove(), 18000);
+    setTimeout(() => element.remove(), 18000);
 }
 
 function startFloatingHearts() {
     // Create initial batch
     for (let i = 0; i < 8; i++) {
-        setTimeout(createFloatingHeart, i * 600);
+        setTimeout(createFloatingElement, i * 600);
     }
     // Continue creating
-    setInterval(createFloatingHeart, 2500);
+    setInterval(createFloatingElement, 2500);
 }
 
 // =========================================
@@ -133,14 +134,61 @@ function openEnvelope() {
     setTimeout(() => {
         introSection.classList.add('hidden');
         mainContent.classList.add('visible');
-        document.body.style.overflow = 'auto';
+        document.body.style.overflow = 'hidden';
+
+        // Setup multiple pages
+        const sections = Array.from(document.querySelectorAll('.main-content > section'));
+        sections.forEach(s => s.classList.remove('active-page'));
+        if (sections.length > 0) sections[0].classList.add('active-page');
+        window.currentSectionIndex = 0;
+        if (nextPageBtn) nextPageBtn.classList.remove('hidden');
 
         // Start all animations
         startFloatingHearts();
         createHeroParticles();
         updateCounters();
         triggerEmojiRain();
+
+        // Play music automatically
+        if (bgMusic && musicToggle) {
+            bgMusic.play().then(() => {
+                musicPlaying = true;
+                musicToggle.classList.add('playing');
+                musicToggle.textContent = '🎶';
+            }).catch(e => console.log('Audio play failed:', e));
+        }
     }, 600);
+}
+
+// =========================================
+// NEXT PAGE BUTTON LOGIC
+// =========================================
+if (nextPageBtn) {
+    const sections = Array.from(document.querySelectorAll('.main-content > section'));
+    
+    nextPageBtn.addEventListener('click', () => {
+        if (window.currentSectionIndex < sections.length - 1) {
+            // Hide current
+            sections[window.currentSectionIndex].classList.remove('active-page');
+            
+            // Show next
+            window.currentSectionIndex++;
+            const nextSec = sections[window.currentSectionIndex];
+            nextSec.classList.add('active-page');
+            nextSec.scrollTop = 0; // reset scroll inside section
+            
+            // Manually trigger animations for items in this section so they don't break
+            const elementsToAnimate = nextSec.querySelectorAll('[data-aos], .timeline-item, .counter-card, .promise-card, .gallery-item, .letter-wrapper');
+            elementsToAnimate.forEach((el, idx) => {
+                setTimeout(() => el.classList.add('visible'), idx * 100);
+            });
+
+            // Hide next button if on last section
+            if (window.currentSectionIndex === sections.length - 1) {
+                nextPageBtn.classList.add('hidden');
+            }
+        }
+    });
 }
 
 // =========================================
@@ -205,6 +253,17 @@ replayBtn.addEventListener('click', () => {
     // Scroll to top
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
+    // Stop music automatically on replay
+    if (typeof bgMusic !== 'undefined' && bgMusic && musicPlaying) {
+        bgMusic.pause();
+        bgMusic.currentTime = 0;
+        musicPlaying = false;
+        if (typeof musicToggle !== 'undefined' && musicToggle) {
+            musicToggle.classList.remove('playing');
+            musicToggle.textContent = '🎵';
+        }
+    }
+
     setTimeout(() => {
         mainContent.classList.remove('visible');
         introSection.classList.remove('hidden');
@@ -224,6 +283,12 @@ replayBtn.addEventListener('click', () => {
                 el.classList.remove('visible');
             }
         });
+        
+        // Reset pages
+        const sections = Array.from(document.querySelectorAll('.main-content > section'));
+        sections.forEach(s => s.classList.remove('active-page'));
+        window.currentSectionIndex = 0;
+        if (nextPageBtn) nextPageBtn.classList.add('hidden');
     }, 500);
 });
 
@@ -269,7 +334,7 @@ let musicPlaying = false;
 
 musicToggle.addEventListener('click', () => {
     if (!bgMusic) return;
-    
+
     if (musicPlaying) {
         bgMusic.pause();
         musicPlaying = false;
@@ -282,6 +347,48 @@ musicToggle.addEventListener('click', () => {
         musicToggle.textContent = '🎶';
     }
 });
+// =========================================
+// REPLY MODAL LOGIC
+// =========================================
+const openReplyBtn = document.getElementById('openReplyBtn');
+const replyModal = document.getElementById('replyModal');
+const replyClose = document.getElementById('replyClose');
+const replySendBtn = document.getElementById('replySendBtn');
+const replyTextarea = document.getElementById('replyTextarea');
+
+if (openReplyBtn && replyModal && replyClose && replySendBtn && replyTextarea) {
+    openReplyBtn.addEventListener('click', () => {
+        replyModal.classList.remove('hidden');
+        replyTextarea.focus();
+    });
+
+    replyClose.addEventListener('click', () => {
+        replyModal.classList.add('hidden');
+    });
+
+    // Close when clicking outside modal content
+    replyModal.addEventListener('click', (e) => {
+        if (e.target === replyModal) {
+            replyModal.classList.add('hidden');
+        }
+    });
+
+    replySendBtn.addEventListener('click', () => {
+        const text = replyTextarea.value.trim();
+        if (text === '') {
+            alert('Please write something sweet first! 💕');
+            return;
+        }
+        
+        replySendBtn.innerText = 'Sent to My Heart! 💘';
+        replyTextarea.value = '';
+        
+        setTimeout(() => {
+            replyModal.classList.add('hidden');
+            replySendBtn.innerText = 'Send to My Heart 💖';
+        }, 2000);
+    });
+}
 
 // =========================================
 // INITIALIZATION
