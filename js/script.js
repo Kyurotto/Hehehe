@@ -165,18 +165,18 @@ function openEnvelope() {
 // =========================================
 if (nextPageBtn) {
     const sections = Array.from(document.querySelectorAll('.main-content > section'));
-    
+
     nextPageBtn.addEventListener('click', () => {
         if (window.currentSectionIndex < sections.length - 1) {
             // Hide current
             sections[window.currentSectionIndex].classList.remove('active-page');
-            
+
             // Show next
             window.currentSectionIndex++;
             const nextSec = sections[window.currentSectionIndex];
             nextSec.classList.add('active-page');
             nextSec.scrollTop = 0; // reset scroll inside section
-            
+
             // Manually trigger animations for items in this section so they don't break
             const elementsToAnimate = nextSec.querySelectorAll('[data-aos], .timeline-item, .counter-card, .promise-card, .gallery-item, .letter-wrapper');
             elementsToAnimate.forEach((el, idx) => {
@@ -283,7 +283,7 @@ replayBtn.addEventListener('click', () => {
                 el.classList.remove('visible');
             }
         });
-        
+
         // Reset pages
         const sections = Array.from(document.querySelectorAll('.main-content > section'));
         sections.forEach(s => s.classList.remove('active-page'));
@@ -379,14 +379,38 @@ if (openReplyBtn && replyModal && replyClose && replySendBtn && replyTextarea) {
             alert('Please write something sweet first! 💕');
             return;
         }
-        
-        replySendBtn.innerText = 'Sent to My Heart! 💘';
-        replyTextarea.value = '';
-        
-        setTimeout(() => {
-            replyModal.classList.add('hidden');
+
+        // Change button text to show loading state
+        replySendBtn.innerText = 'Sending to My Heart... ⏳';
+
+        // Automatically send the email using FormSubmit AJAX
+        fetch("https://formsubmit.co/ajax/johnlaurencenovicio@gmail.com", {
+            method: "POST",
+            headers: { 
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                _subject: "A Sweet Note From My Love 💕",
+                message: text,
+                _template: "box",
+                _captcha: "false"
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            replySendBtn.innerText = 'Sent to My Heart! 💘';
+            setTimeout(() => {
+                replyTextarea.value = '';
+                replyModal.classList.add('hidden');
+                replySendBtn.innerText = 'Send to My Heart 💖';
+            }, 2500);
+        })
+        .catch(error => {
+            console.error("Error sending email:", error);
+            alert('Oops! Could not send the message. Please try again.');
             replySendBtn.innerText = 'Send to My Heart 💖';
-        }, 2000);
+        });
     });
 }
 

@@ -68,8 +68,10 @@ body {
 
 /* Hide scrollbar for IE, Edge and Firefox */
 * {
-    -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;  /* Firefox */
+    -ms-overflow-style: none;
+    /* IE and Edge */
+    scrollbar-width: none;
+    /* Firefox */
 }
 
 /* =========================================
@@ -97,6 +99,51 @@ body::after {
     z-index: 0;
     transform: rotate(-25deg);
     pointer-events: none;
+}
+
+/* =========================================
+   PAGE FLOWER BORDERS
+   ========================================= */
+.page-flower-border {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    width: 60px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: center;
+    z-index: 100;
+    pointer-events: none;
+    font-size: 2.2rem;
+    opacity: 0.7;
+    filter: drop-shadow(0 0 8px rgba(236, 72, 153, 0.5));
+}
+
+
+
+.page-flower-border span {
+    animation: bounceDown 4s ease-in-out infinite alternate;
+}
+
+.page-flower-border span.grass {
+    font-size: 1.7rem;
+    opacity: 0.8;
+    animation: bounceDown 5s ease-in-out infinite alternate;
+    animation-delay: 1s;
+}
+
+.page-flower-border span:not(.grass):nth-child(even) {
+    animation-delay: 2s;
+    animation-duration: 5s;
+}
+
+.page-flower-border.left-border {
+    left: 0;
+}
+
+.page-flower-border.right-border {
+    right: 0;
 }
 
 ::selection {
@@ -612,10 +659,7 @@ body::after {
 }
 
 .scroll-indicator {
-    position: absolute;
-    bottom: 40px;
-    left: 50%;
-    transform: translateX(-50%);
+    margin-top: 3rem;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -1006,14 +1050,13 @@ body::after {
     right: 0;
     background: linear-gradient(transparent, rgba(13, 10, 18, 0.9));
     padding: 2rem 1.2rem 1.2rem;
-    opacity: 0;
-    transform: translateY(10px);
+    opacity: 1;
+    transform: translateY(0);
     transition: all 0.4s ease;
 }
 
 .gallery-card:hover .gallery-overlay {
-    opacity: 1;
-    transform: translateY(0);
+    padding-bottom: 1.5rem;
 }
 
 .gallery-caption {
@@ -1021,6 +1064,16 @@ body::after {
     font-size: 1.1rem;
     color: var(--pink-soft);
     text-align: center;
+}
+
+.gallery-summary-text {
+    font-family: var(--font-script);
+    font-size: 1.5rem;
+    color: var(--white-muted);
+    text-align: center;
+    max-width: 800px;
+    margin: 4rem auto 1rem;
+    line-height: 1.8;
 }
 
 /* =========================================
@@ -1131,44 +1184,37 @@ body::after {
     transform: translateY(0);
 }
 
-.letter-decoration {
+.letter-flower-border {
     position: absolute;
-    font-size: 1.5rem;
-    color: var(--pink-deep);
-    opacity: 0.3;
-    animation: flowerSpin 8s linear infinite;
+    top: 20px;
+    bottom: 20px;
+    width: 30px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: center;
+    z-index: 10;
+    pointer-events: none;
+    font-size: 1.8rem;
+    opacity: 0.9;
 }
 
-.letter-dec-tl {
-    top: 16px;
-    left: 20px;
+.letter-flower-border.left-border {
+    left: -25px;
 }
 
-.letter-dec-tr {
-    top: 16px;
-    right: 20px;
-    animation-direction: reverse;
+.letter-flower-border.right-border {
+    right: -25px;
 }
 
-.letter-dec-bl {
-    bottom: 16px;
-    left: 20px;
-    animation-direction: reverse;
+.letter-flower-border span {
+    animation: bounceDown 4s ease-in-out infinite alternate;
 }
 
-.letter-dec-br {
-    bottom: 16px;
-    right: 20px;
-}
-
-@keyframes flowerSpin {
-    from {
-        transform: rotate(0deg);
-    }
-
-    to {
-        transform: rotate(360deg);
-    }
+.letter-flower-border span.grass {
+    font-size: 1.4rem;
+    animation: bounceDown 5s ease-in-out infinite alternate;
+    animation-delay: 1s;
 }
 
 .letter-header {
@@ -1404,7 +1450,8 @@ body::after {
     animation: fadeInUp 1s ease 0.9s both;
 }
 
-.replay-btn, .reply-btn {
+.replay-btn,
+.reply-btn {
     padding: 14px 36px;
     background: var(--gradient-pink);
     border: none;
@@ -1422,12 +1469,14 @@ body::after {
     background: linear-gradient(135deg, var(--purple-mid) 0%, var(--pink-deep) 100%);
 }
 
-.replay-btn:hover, .reply-btn:hover {
+.replay-btn:hover,
+.reply-btn:hover {
     transform: scale(1.08);
     box-shadow: 0 6px 30px rgba(236, 72, 153, 0.6);
 }
 
-.replay-btn:active, .reply-btn:active {
+.replay-btn:active,
+.reply-btn:active {
     transform: scale(0.96);
 }
 
@@ -1592,7 +1641,7 @@ body::after {
 .music-toggle {
     position: fixed;
     bottom: 24px;
-    right: 24px;
+    right: 80px;
     width: 50px;
     height: 50px;
     border-radius: 50%;
