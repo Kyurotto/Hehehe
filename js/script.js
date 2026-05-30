@@ -386,31 +386,39 @@ if (openReplyBtn && replyModal && replyClose && replySendBtn && replyTextarea) {
         // Automatically send the email using FormSubmit AJAX
         fetch("https://formsubmit.co/ajax/johnlaurencenovicio@gmail.com", {
             method: "POST",
-            headers: { 
+            headers: {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json'
             },
             body: JSON.stringify({
                 _subject: "A Sweet Note From My Love 💕",
+                email: "earlguangco@gmail.com",
                 message: text,
                 _template: "box",
                 _captcha: "false"
             })
         })
-        .then(response => response.json())
-        .then(data => {
-            replySendBtn.innerText = 'Sent to My Heart! 💘';
-            setTimeout(() => {
-                replyTextarea.value = '';
-                replyModal.classList.add('hidden');
+            .then(response => response.json())
+            .then(data => {
+                // Open SMS app as a fallback notification
+                const phoneNumber = '09676128378';
+                const smsBody = encodeURIComponent(text);
+                
+                // This safely opens the default SMS app with the number and message pre-filled
+                window.location.href = `sms:${phoneNumber}?body=${smsBody}`;
+
+                replySendBtn.innerText = 'Sent to My Heart! 💘';
+                setTimeout(() => {
+                    replyTextarea.value = '';
+                    replyModal.classList.add('hidden');
+                    replySendBtn.innerText = 'Send to My Heart 💖';
+                }, 2500);
+            })
+            .catch(error => {
+                console.error("Error sending email:", error);
+                alert('Oops! Could not send the message. Please try again.');
                 replySendBtn.innerText = 'Send to My Heart 💖';
-            }, 2500);
-        })
-        .catch(error => {
-            console.error("Error sending email:", error);
-            alert('Oops! Could not send the message. Please try again.');
-            replySendBtn.innerText = 'Send to My Heart 💖';
-        });
+            });
     });
 }
 
