@@ -300,14 +300,56 @@ const lightboxImg = document.getElementById('lightboxImg');
 const lightboxCaption = document.getElementById('lightboxCaption');
 const lightboxClose = document.getElementById('lightboxClose');
 
+// Typewriter state
+let typewriterTimer = null;
+
 function openLightbox(imgSrc, caption) {
     lightboxImg.src = imgSrc;
-    lightboxCaption.textContent = caption;
+
+    // Clear any previous typewriter animation
+    if (typewriterTimer !== null) {
+        clearTimeout(typewriterTimer);
+        typewriterTimer = null;
+    }
+
+    // Reset caption and add cursor class
+    lightboxCaption.textContent = '';
+    lightboxCaption.classList.add('typewriter-active');
+
     lightbox.classList.add('active');
     document.body.style.overflow = 'hidden';
+
+    // Start typewriter effect after a brief delay for the lightbox to appear
+    const chars = Array.from(caption);
+    let charIndex = 0;
+    const speed = 35; // milliseconds per character
+
+    function typeNextChar() {
+        if (charIndex < chars.length) {
+            lightboxCaption.textContent += chars[charIndex];
+            charIndex++;
+            typewriterTimer = setTimeout(typeNextChar, speed);
+        } else {
+            // Typing done — remove cursor after a moment
+            typewriterTimer = null;
+            setTimeout(function () {
+                lightboxCaption.classList.remove('typewriter-active');
+            }, 1500);
+        }
+    }
+
+    // Small initial delay so the lightbox animation plays first
+    typewriterTimer = setTimeout(typeNextChar, 400);
 }
 
 function closeLightbox() {
+    // Clear any running typewriter animation
+    if (typewriterTimer !== null) {
+        clearTimeout(typewriterTimer);
+        typewriterTimer = null;
+    }
+    lightboxCaption.classList.remove('typewriter-active');
+
     lightbox.classList.remove('active');
     document.body.style.overflow = 'auto';
 }
@@ -421,6 +463,82 @@ if (openReplyBtn && replyModal && replyClose && replySendBtn && replyTextarea) {
 }
 
 // =========================================
+// GALLERY SUMMARY TYPEWRITER
+// =========================================
+function setupGallerySummaryTypewriter() {
+    const summaryTexts = document.querySelectorAll('.gallery-summary-text');
+    if (summaryTexts.length === 0) return;
+
+    // Save original text and clear each element
+    summaryTexts.forEach(function (el) {
+        el.setAttribute('data-full-text', el.textContent.trim());
+        el.textContent = '';
+    });
+
+    // Function to type out text on a single element
+    function startElementTypewriter(el, onComplete) {
+        var fullText = el.getAttribute('data-full-text');
+        if (!fullText) return;
+
+        var chars = Array.from(fullText);
+        var charIndex = 0;
+        var speed = 18;
+
+        el.classList.add('typewriter-active');
+
+        function typeNext() {
+            if (charIndex < chars.length) {
+                el.textContent += chars[charIndex];
+                charIndex++;
+                setTimeout(typeNext, speed);
+            } else {
+                setTimeout(function () {
+                    el.classList.remove('typewriter-active');
+                    if (typeof onComplete === 'function') onComplete();
+                }, 800);
+            }
+        }
+
+        setTimeout(typeNext, 300);
+    }
+
+    // Watch for 'visible' class being added via MutationObserver
+    var typingQueue = [];
+    var isTyping = false;
+
+    function processQueue() {
+        if (typingQueue.length === 0) {
+            isTyping = false;
+            return;
+        }
+        isTyping = true;
+        var el = typingQueue.shift();
+        startElementTypewriter(el, function () {
+            processQueue();
+        });
+    }
+
+    var classObserver = new MutationObserver(function (mutations) {
+        mutations.forEach(function (mutation) {
+            if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                var el = mutation.target;
+                if (el.classList.contains('visible') &&
+                    el.classList.contains('gallery-summary-text') &&
+                    el.getAttribute('data-typing-started') !== 'true') {
+                    el.setAttribute('data-typing-started', 'true');
+                    typingQueue.push(el);
+                    if (!isTyping) processQueue();
+                }
+            }
+        });
+    });
+
+    summaryTexts.forEach(function (el) {
+        classObserver.observe(el, { attributes: true, attributeFilter: ['class'] });
+    });
+}
+
+// =========================================
 // INITIALIZATION
 // =========================================
 document.addEventListener('DOMContentLoaded', () => {
@@ -439,6 +557,13 @@ document.addEventListener('DOMContentLoaded', () => {
     promiseCards.forEach(card => observer.observe(card));
     galleryItems.forEach(item => observer.observe(item));
     if (letterWrapper) observer.observe(letterWrapper);
+
+    // Setup gallery summary typewriter effect
+    setupGallerySummaryTypewriter();
+
+    // Also observe gallery summary texts for visibility
+    var summaryTexts = document.querySelectorAll('.gallery-summary-text');
+    summaryTexts.forEach(function (el) { observer.observe(el); });
 
     // Gallery card click handlers
     const galleryCards = document.querySelectorAll('.gallery-card');

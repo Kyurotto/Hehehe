@@ -1157,6 +1157,26 @@ body::after {
     line-height: 1.6;
 }
 
+/* Typewriter blinking cursor */
+.typewriter-active::after {
+    content: '|';
+    display: inline;
+    color: var(--pink-soft);
+    animation: typewriterBlink 0.6s step-end infinite;
+    margin-left: 2px;
+    font-style: normal;
+    font-weight: 300;
+}
+
+@keyframes typewriterBlink {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0;
+    }
+}
+
 /* =========================================
    LOVE LETTER SECTION
    ========================================= */
