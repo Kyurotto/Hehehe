@@ -87,8 +87,10 @@ function startFloatingHearts() {
 // =========================================
 let lastSparkleTime = 0;
 const sparkleEmojis = ['✨', '💫', '⭐', '🌟', '💖'];
+window.isDraggingCarousel = false;
 
 document.addEventListener('mousemove', (e) => {
+    if (window.isDraggingCarousel) return;
     const now = Date.now();
     if (now - lastSparkleTime < 80) return;
     lastSparkleTime = now;
@@ -586,3 +588,62 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }, { once: true });
 });
+
+// =========================================
+// CAROUSEL DRAG LOGIC
+// =========================================
+const carouselContainer = document.querySelector('.carousel-container');
+const carousel = document.querySelector('.carousel');
+
+if (carouselContainer && carousel) {
+    let isDragging = false;
+    let startX;
+    let currentAngle = 0;
+    let dragAngle = 0;
+    let rafId = null;
+
+    carouselContainer.addEventListener('dragstart', (e) => e.preventDefault());
+
+    function updateCarousel() {
+        if (!isDragging) return;
+        carousel.style.transform = `translateZ(-1000px) rotateY(${currentAngle + dragAngle}deg)`;
+        rafId = requestAnimationFrame(updateCarousel);
+    }
+
+    function handleStart(e) {
+        if (e.target.closest('.lightbox-close')) return;
+        isDragging = true;
+        window.isDraggingCarousel = true;
+        startX = e.type.includes('mouse') ? e.pageX : e.touches[0].pageX;
+        carousel.style.transition = 'none';
+        carouselContainer.style.cursor = 'grabbing';
+        if (rafId) cancelAnimationFrame(rafId);
+        rafId = requestAnimationFrame(updateCarousel);
+    }
+
+    function handleMove(e) {
+        if (!isDragging) return;
+        const x = e.type.includes('mouse') ? e.pageX : e.touches[0].pageX;
+        dragAngle = (x - startX) * 0.5;
+    }
+
+    function handleEnd() {
+        if (!isDragging) return;
+        isDragging = false;
+        window.isDraggingCarousel = false;
+        if (rafId) cancelAnimationFrame(rafId);
+        currentAngle += dragAngle;
+        dragAngle = 0;
+        carousel.style.transition = 'transform 0.5s ease-out';
+        carousel.style.transform = `translateZ(-1000px) rotateY(${currentAngle}deg)`;
+        carouselContainer.style.cursor = 'grab';
+    }
+
+    carouselContainer.addEventListener('mousedown', handleStart);
+    window.addEventListener('mousemove', handleMove);
+    window.addEventListener('mouseup', handleEnd);
+
+    carouselContainer.addEventListener('touchstart', handleStart, {passive: true});
+    window.addEventListener('touchmove', handleMove, {passive: true});
+    window.addEventListener('touchend', handleEnd);
+}

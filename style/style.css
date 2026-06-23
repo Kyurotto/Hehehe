@@ -32,8 +32,8 @@
     --font-serif: 'Playfair Display', serif;
     --font-sans: 'Poppins', sans-serif;
 
-    --transition-smooth: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    --transition-bounce: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    --transition-smooth: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), border-color 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    --transition-bounce: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 /* =========================================
@@ -171,7 +171,6 @@ body::after {
     animation: floatHeart linear infinite;
     opacity: 0;
     font-size: 1.2rem;
-    filter: blur(0.5px);
 }
 
 @keyframes floatHeart {
@@ -758,12 +757,12 @@ body::after {
 }
 
 .counter-card {
-    background: var(--gradient-card);
+    background: linear-gradient(145deg, rgba(244, 63, 94, 0.12), rgba(168, 85, 247, 0.12));
+    background-color: rgba(20, 15, 28, 0.85);
     border: 1px solid var(--border-glass);
     border-radius: 20px;
     padding: 2rem 1.5rem;
     text-align: center;
-    backdrop-filter: blur(10px);
     transition: var(--transition-smooth);
     opacity: 0;
     transform: translateY(30px);
@@ -844,7 +843,7 @@ body::after {
     padding: 1.5rem;
     opacity: 0;
     transform: translateX(-30px);
-    transition: all 0.6s ease;
+    transition: transform 0.6s ease, opacity 0.6s ease;
 }
 
 .timeline-item.visible {
@@ -887,11 +886,10 @@ body::after {
 }
 
 .timeline-card {
-    background: var(--bg-glass);
+    background: rgba(20, 15, 28, 0.85);
     border: 1px solid var(--border-glass);
     border-radius: 16px;
     padding: 2rem;
-    backdrop-filter: blur(10px);
     transition: var(--transition-smooth);
 }
 
@@ -912,10 +910,9 @@ body::after {
     z-index: 1;
     border-radius: 16px;
     padding: 10px;
-    background: var(--bg-glass);
+    background: rgba(20, 15, 28, 0.85);
     border: 1px solid var(--border-glass);
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-    backdrop-filter: blur(10px);
 }
 
 .timeline-item.left .timeline-photo-wrapper {
@@ -999,22 +996,67 @@ body::after {
     overflow: hidden;
 }
 
-.gallery-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1.5rem;
-}
-
-.gallery-item {
+.carousel-container {
+    perspective: 1200px;
+    width: 100%;
+    height: 500px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: visible;
+    margin: 4rem 0 4rem;
     opacity: 0;
     transform: translateY(30px);
-    transition: all 0.6s ease;
+    transition: opacity 0.6s ease, transform 0.6s ease;
 }
 
-.gallery-item.visible {
+.carousel-container.visible {
     opacity: 1;
     transform: translateY(0);
 }
+
+.carousel {
+    position: relative;
+    width: 320px;
+    height: 240px;
+    transform-style: preserve-3d;
+    will-change: transform;
+    transform: translateZ(-1000px);
+    /* Removed auto animation for manual drag */
+    cursor: grab;
+}
+
+.carousel:active {
+    cursor: grabbing;
+}
+
+.carousel-item {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+}
+
+.carousel-item:nth-child(1) { transform: rotateY(0deg) translateZ(1000px); }
+.carousel-item:nth-child(2) { transform: rotateY(21.2deg) translateZ(1000px); }
+.carousel-item:nth-child(3) { transform: rotateY(42.4deg) translateZ(1000px); }
+.carousel-item:nth-child(4) { transform: rotateY(63.5deg) translateZ(1000px); }
+.carousel-item:nth-child(5) { transform: rotateY(84.7deg) translateZ(1000px); }
+.carousel-item:nth-child(6) { transform: rotateY(105.9deg) translateZ(1000px); }
+.carousel-item:nth-child(7) { transform: rotateY(127.1deg) translateZ(1000px); }
+.carousel-item:nth-child(8) { transform: rotateY(148.2deg) translateZ(1000px); }
+.carousel-item:nth-child(9) { transform: rotateY(169.4deg) translateZ(1000px); }
+.carousel-item:nth-child(10) { transform: rotateY(190.6deg) translateZ(1000px); }
+.carousel-item:nth-child(11) { transform: rotateY(211.8deg) translateZ(1000px); }
+.carousel-item:nth-child(12) { transform: rotateY(232.9deg) translateZ(1000px); }
+.carousel-item:nth-child(13) { transform: rotateY(254.1deg) translateZ(1000px); }
+.carousel-item:nth-child(14) { transform: rotateY(275.3deg) translateZ(1000px); }
+.carousel-item:nth-child(15) { transform: rotateY(296.5deg) translateZ(1000px); }
+.carousel-item:nth-child(16) { transform: rotateY(317.6deg) translateZ(1000px); }
+.carousel-item:nth-child(17) { transform: rotateY(338.8deg) translateZ(1000px); }
 
 .gallery-card {
     position: relative;
@@ -1052,7 +1094,7 @@ body::after {
     padding: 2rem 1.2rem 1.2rem;
     opacity: 1;
     transform: translateY(0);
-    transition: all 0.4s ease;
+    transition: transform 0.4s ease, opacity 0.4s ease;
 }
 
 .gallery-card:hover .gallery-overlay {
@@ -1196,7 +1238,7 @@ body::after {
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05);
     opacity: 0;
     transform: translateY(40px);
-    transition: all 0.8s ease;
+    transition: transform 0.8s ease, opacity 0.8s ease;
 }
 
 .letter-wrapper.visible {
@@ -1340,12 +1382,11 @@ body::after {
 }
 
 .promise-card {
-    background: var(--bg-glass);
+    background: rgba(20, 15, 28, 0.85);
     border: 1px solid var(--border-glass);
     border-radius: 20px;
     padding: 2rem;
     text-align: center;
-    backdrop-filter: blur(10px);
     transition: var(--transition-smooth);
     opacity: 0;
     transform: translateY(30px);
@@ -1665,9 +1706,8 @@ body::after {
     width: 50px;
     height: 50px;
     border-radius: 50%;
-    background: var(--bg-glass);
+    background: rgba(20, 15, 28, 0.85);
     border: 1px solid var(--border-glass);
-    backdrop-filter: blur(10px);
     font-size: 1.3rem;
     cursor: pointer;
     z-index: 100;
